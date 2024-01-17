@@ -27,11 +27,10 @@ if not CBZ:
     logging.fatal(f"No CBZ found in: {str(CBZ_BASE_PATH.absolute())}")
     exit(0)
 
-print(f"Found CBZ: {CBZ}")
+logging.info(f"Found CBZ: {CBZ}")
 
 @app.route('/')
 async def list_cbz() -> None:
-    print(CBZ)
     return await render_template("list_cbz.html", list_cbz=CBZ)
 
 @app.route('/load_cbz/<cbz_file_name>')
@@ -62,7 +61,6 @@ async def load_cbz(cbz_file_name: str) -> None:
     image_sources = [image_src.decode("utf-8") for image_src in image_sources]
     image_sources = [f"data:image/jpeg;base64,{image_src}" for image_src in image_sources]
 
-    print(CBZ)
     if cbz_file_name in CBZ:
         current_page_index = CBZ.index(cbz_file_name)
         previous_page_index = current_page_index - 1
@@ -79,8 +77,6 @@ async def load_cbz(cbz_file_name: str) -> None:
     first_page = CBZ[0] if current_page_index != 0 else None
     last_page = CBZ[-1] if current_page_index != len(CBZ) - 1 else None
 
-    print(first_page)
-    print(last_page)
     return await render_template(
         "load_cbz.html",
         chapter_title=chapter_title,
