@@ -5,12 +5,13 @@ import os # os.getcwd, os.chdir
 import pathlib # pathlib.Path
 import zipfile # zipfile.Path
 
-from quart import Quart, render_template
+import quart # quart.render_template, quart.redirect
+from quart import Quart
 
 app = Quart(__name__)
-app.config.from_prefixed_env()
+app.config.from_prefixed_env("CBZ")
 
-CBZ_BASE_PATH = app.config.get("CBZ_BASE_PATH", os.getcwd())
+CBZ_BASE_PATH = app.config.get("BASE_PATH", os.getcwd())
 CBZ_BASE_PATH = pathlib.Path(CBZ_BASE_PATH)
 os.chdir(CBZ_BASE_PATH)
 logging.info(f"Looking for CBZs in: {str(CBZ_BASE_PATH.absolute())}")
@@ -31,10 +32,13 @@ logging.info(f"Found CBZ: {CBZ}")
 
 @app.route('/')
 async def list_cbz() -> None:
-    return await render_template("list_cbz.html", list_cbz=CBZ)
+    return await quart.render_template("list_cbz.html", list_cbz=CBZ)
 
 @app.route('/load_cbz/<cbz_file_name>')
 async def load_cbz(cbz_file_name: str) -> None:
+    if not cbz_file_name in CBZ:
+        return quart.redirect("/404")
+
     logging.info(f"Loading in: {cbz_file_name}")
     cbz_file = CBZ_BASE_PATH.joinpath(cbz_file_name)
     cbz_file = zipfile.Path(cbz_file)
@@ -77,7 +81,7 @@ async def load_cbz(cbz_file_name: str) -> None:
     first_page = CBZ[0] if current_page_index != 0 else None
     last_page = CBZ[-1] if current_page_index != len(CBZ) - 1 else None
 
-    return await render_template(
+    return await quart.render_template(
         "load_cbz.html",
         chapter_title=chapter_title,
         image_sources=image_sources,
