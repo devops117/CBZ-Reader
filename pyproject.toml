@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cbz_reader"
-version = "0.1.3"
+version = "1.0.0"
 description = "A good ol' CBZ Reader!"
 authors = ["devops117 <devops117.main@protonmail.com>"]
 license = "MIT"
