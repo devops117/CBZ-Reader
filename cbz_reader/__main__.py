@@ -26,7 +26,7 @@ for file in CBZ_BASE_PATH.glob("*.cbz"):
 
 if not CBZ:
     logging.fatal(f"No CBZ found in: {str(CBZ_BASE_PATH.absolute())}")
-    exit(0)
+    exit(1)
 
 logging.info(f"Found CBZ: {CBZ}")
 
