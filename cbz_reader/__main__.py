@@ -1,4 +1,3 @@
-import logging # logging.info, logging.warning, logging.debug
 from base64 import b64encode
 import mimetypes # mimetypes.guess_type
 import os # os.getcwd, os.chdir
@@ -15,22 +14,22 @@ app.config.from_prefixed_env("CBZ")
 CBZ_BASE_PATH = app.config.get("BASE_PATH", os.getcwd())
 CBZ_BASE_PATH = pathlib.Path(CBZ_BASE_PATH)
 os.chdir(CBZ_BASE_PATH)
-logging.info(f"Looking for CBZs in: {str(CBZ_BASE_PATH.absolute())}")
+app.logger.info(f"Looking for CBZs in: {str(CBZ_BASE_PATH.absolute())}")
 
 CBZ = []
 for file in CBZ_BASE_PATH.glob("*.cbz"):
     if not file.is_file():
-        logging.warn(f"Ignoring: Not a file: {file.name}")
+        app.logger.warn(f"Ignoring: Not a file: {file.name}")
         continue
 
     CBZ.append(file.name)
 
 if not CBZ:
-    logging.fatal(f"No CBZ found in: {str(CBZ_BASE_PATH.absolute())}")
+    app.logger.fatal(f"No CBZ found in: {str(CBZ_BASE_PATH.absolute())}")
     exit(1)
 
 CBZ = natsorted(CBZ)
-logging.info(f"Found CBZ: {CBZ}")
+app.logger.info(f"Found CBZ: {CBZ}")
 
 @app.route('/')
 async def list_cbz() -> None:
@@ -41,7 +40,7 @@ async def load_cbz(cbz_file_name: str) -> None:
     if not cbz_file_name in CBZ:
         return quart.redirect("/404")
 
-    logging.info(f"Loading in: {cbz_file_name}")
+    app.logger.info(f"Loading in: {cbz_file_name}")
     cbz_file = CBZ_BASE_PATH.joinpath(cbz_file_name)
     cbz_file = zipfile.Path(cbz_file)
 
@@ -57,11 +56,11 @@ async def load_cbz(cbz_file_name: str) -> None:
         if file_type:
             file_type = file_type.split("/")[0] # pick image from image/aces
         if file_type != "image":
-            logging.warning(f"{cbz_file.name} contains non image files: {file.name}")
+            app.logger.warning(f"{cbz_file.name} contains non image files: {file.name}")
             continue
 
         image_sources.append(file.read_bytes())
-        logging.debug(f"Found image: {file.name}")
+        app.logger.debug(f"Found image: {file.name}")
 
     image_sources = [b64encode(image_src) for image_src in image_sources]
     image_sources = [image_src.decode("utf-8") for image_src in image_sources]
