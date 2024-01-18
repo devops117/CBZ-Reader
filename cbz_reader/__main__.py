@@ -5,6 +5,7 @@ import os # os.getcwd, os.chdir
 import pathlib # pathlib.Path
 import zipfile # zipfile.Path
 
+from natsort import natsorted
 import quart # quart.render_template, quart.redirect
 from quart import Quart
 
@@ -28,6 +29,7 @@ if not CBZ:
     logging.fatal(f"No CBZ found in: {str(CBZ_BASE_PATH.absolute())}")
     exit(1)
 
+CBZ = natsorted(CBZ)
 logging.info(f"Found CBZ: {CBZ}")
 
 @app.route('/')

@@ -9,6 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 quart = "^0.19.4"
+natsort = "^8.4.0"
 
 
 [build-system]
