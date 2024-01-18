@@ -1,4 +1,5 @@
 from base64 import b64encode
+from collections import OrderedDict
 import mimetypes # mimetypes.guess_type
 import os # os.getcwd, os.chdir
 import pathlib # pathlib.Path
@@ -31,15 +32,18 @@ if not CBZ:
 CBZ = natsorted(CBZ)
 app.logger.info(f"Found CBZ: {CBZ}")
 
+CBZ_MAP = OrderedDict(enumerate(CBZ, start=1))
+
 @app.route('/')
 async def list_cbz() -> None:
-    return await quart.render_template("list_cbz.html", list_cbz=CBZ)
+    return await quart.render_template("list_cbz.html", cbz_map=CBZ_MAP.items())
 
-@app.route('/load_cbz/<cbz_file_name>')
-async def load_cbz(cbz_file_name: str) -> None:
-    if not cbz_file_name in CBZ:
+@app.route('/load_cbz/<int:current_page_index>')
+async def load_cbz(current_page_index: int) -> None:
+    if not CBZ_MAP.get(current_page_index):
         return quart.redirect("/404")
 
+    cbz_file_name = CBZ_MAP[current_page_index]
     app.logger.info(f"Loading in: {cbz_file_name}")
     cbz_file = CBZ_BASE_PATH.joinpath(cbz_file_name)
     cbz_file = zipfile.Path(cbz_file)
@@ -66,31 +70,29 @@ async def load_cbz(cbz_file_name: str) -> None:
     image_sources = [image_src.decode("utf-8") for image_src in image_sources]
     image_sources = [f"data:image/jpeg;base64,{image_src}" for image_src in image_sources]
 
-    if cbz_file_name in CBZ:
-        current_page_index = CBZ.index(cbz_file_name)
-        previous_page_index = current_page_index - 1
-        next_page_index = current_page_index + 1
+    # CBZ_MAP is an OrderedDict
+    indexes = tuple(CBZ_MAP.keys())
 
-        previous_page = CBZ[previous_page_index] if previous_page_index > 0 and previous_page_index < len(CBZ) else None
-        next_page = CBZ[next_page_index] if next_page_index > 0 and next_page_index < len(CBZ) else None
-    else:
-        current_page_index = None
-        current_page = None
-        previous_page = None
-        next_page = None
+    # Check if current_page_index is not same as the first_page_index or the last_page_index
+    first_page_index = indexes[0] if current_page_index != indexes[0] else None
+    last_page_index = indexes[-1] if current_page_index != indexes[-1] else None
 
-    first_page = CBZ[0] if current_page_index != 0 else None
-    last_page = CBZ[-1] if current_page_index != len(CBZ) - 1 else None
+    previous_page_index = current_page_index - 1
+    next_page_index = current_page_index + 1
+
+    # Check if the previous_page_index and the next_page_index exist
+    previous_page_index = previous_page_index if CBZ_MAP.get(previous_page_index) else None
+    next_page_index = next_page_index if CBZ_MAP.get(next_page_index) else None
 
     return await quart.render_template(
         "load_cbz.html",
         chapter_title=chapter_title,
         image_sources=image_sources,
         current_page_index=current_page_index,
-        previous_page=previous_page,
-        next_page=next_page,
-        first_page=first_page,
-        last_page=last_page,
+        first_page_index=first_page_index,
+        last_page_index=last_page_index,
+        previous_page_index=previous_page_index,
+        next_page_index=next_page_index,
     )
 
 

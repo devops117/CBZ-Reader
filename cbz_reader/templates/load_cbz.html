@@ -11,29 +11,29 @@
     </div>
     <div id="nav-buttons">
         <div id="first-page">
-        {% if first_page %}
-	    <a href="{{ first_page }}">&lt;&lt;</a>
+        {% if first_page_index %}
+	    <a href="{{ first_page_index }}">&lt;&lt;</a>
         {% else %}
 	    <p>&lt;&lt;</p>
         {% endif %}
         </div>
         <div id="previous-page">
-        {% if previous_page %}
-            <a href="{{ previous_page }}">&lt;</a>
+        {% if previous_page_index %}
+            <a href="{{ previous_page_index }}">&lt;</a>
         {% else %}
 	    <p>&lt;</p>
         {% endif %}
         </div>
 	<div id="next-page">
-        {% if next_page %}
-            <a href="{{ next_page }}">&gt;</a>
+        {% if next_page_index %}
+            <a href="{{ next_page_index }}">&gt;</a>
         {% else %}
             <p>&gt;</p>
         {% endif %}
         </div>
         <div id="last-page">
-        {% if last_page %}
-            <a href="{{ last_page }}">&gt;&gt;</a>
+        {% if last_page_index %}
+            <a href="{{ last_page_index }}">&gt;&gt;</a>
         {% else %}
             <p>&gt;&gt;</p>
         {% endif %}
